@@ -1,4 +1,4 @@
-function Book({ book, changeShelf }) {
+function Book({ book, changeShelf, shelf }) {
   const { imageLinks, title, authors } = book;
   return (
     <li>
@@ -15,9 +15,9 @@ function Book({ book, changeShelf }) {
           <div className="book-shelf-changer">
             <select
               onChange={(e) => changeShelf(book, e.target.value)}
-              defaultValue={book?.shelf}
+              defaultValue={book?.shelf || "none"}
             >
-              <option value="none" disabled>
+              <option value="disabled" disabled>
                 Move to...
               </option>
               <option value="currentlyReading">Currently Reading</option>
@@ -28,7 +28,7 @@ function Book({ book, changeShelf }) {
           </div>
         </div>
         <div className="book-title">{title}</div>
-        <div className="book-authors">{authors}</div>
+        <div className="book-authors">{authors && authors.join(", ")}</div>
       </div>
     </li>
   );

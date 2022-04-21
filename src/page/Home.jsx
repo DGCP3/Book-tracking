@@ -8,17 +8,14 @@ import Shelf from "../components/Shelf";
 const Home = () => {
   const [books, setBooks] = useState(null);
 
-  function getAllBooks() {
-    getAll()
-      .then((books) => {
-        const groupByShelf = books?.reduce((acc, book) => {
-          acc[book.shelf] = acc[book.shelf] || [];
-          acc[book.shelf].push(book);
-          return acc;
-        }, {});
-        setBooks(groupByShelf);
-      })
-      .catch(({ message }) => console.log(message));
+  async function getAllBooks() {
+    const books = await getAll();
+    const groupByShelf = books?.reduce((acc, book) => {
+      acc[book.shelf] = acc[book.shelf] || [];
+      acc[book.shelf].push(book);
+      return acc;
+    }, {});
+    setBooks(groupByShelf);
   }
 
   function changeShelf(book, shelf) {
@@ -40,7 +37,7 @@ const Home = () => {
             return (
               <Shelf ShelfName={shelf} key={shelf}>
                 {books[shelf]?.map((book) => (
-                  <Book book={book} key={book.id} changeShelf={changeShelf} />
+                  <Book key={book.id} {...{ book, changeShelf }} />
                 ))}
               </Shelf>
             );

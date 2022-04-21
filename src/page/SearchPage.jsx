@@ -1,26 +1,42 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { search } from "../BooksAPI";
+import { getAll, search, update } from "../BooksAPI";
 import Book from "../components/Book";
 
 function SearchPage() {
   const input = useRef();
+  const [userBooks, setUserBook] = useState(null);
   const [result, setResult] = useState(null);
+
   function searchBook() {
     let timeout;
     return () => {
       if (timeout) clearTimeout(timeout);
-      timeout = setTimeout(() => {
-        search(input.current.value, 5).then((books) => {
-          if ("error" in books) {
-            setResult([]);
-          } else {
-            setResult([...books]);
-          }
-        });
+      timeout = setTimeout(async () => {
+        const result = await search(input.current.value, 5);
+        if (result.error) {
+          setResult([]);
+          return;
+        }
+        let filtered = userBooks.filter((book) =>
+          result?.some((r) => r.id === book.id)
+        );
+        const merged = result.map(
+          (book) => filtered?.find((b) => b.id === book.id) || book
+        );
+        setResult(merged);
       }, 3000);
     };
   }
+  function changeShelf(book, shelf) {
+    update(book, shelf).then(() => {
+      getAll().then((books) => setUserBook(books));
+    });
+  }
+  useEffect(() => {
+    getAll().then((books) => setUserBook(books));
+  }, []);
+
   return (
     <div>
       <div className="search-books">
@@ -41,7 +57,9 @@ function SearchPage() {
           <ol className="books-grid">
             {result &&
               (result.length !== 0 ? (
-                result?.map((book) => <Book book={book} key={book.id} />)
+                result?.map((book) => (
+                  <Book key={book.id} {...{ book, changeShelf }} />
+                ))
               ) : (
                 <h1>Not found</h1>
               ))}
