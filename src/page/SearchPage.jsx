@@ -21,10 +21,7 @@ function SearchPage() {
         let filtered = userBooks.filter((book) =>
           result?.some((r) => r.id === book.id)
         );
-        const merged = result.map(
-          (book) => filtered?.find((b) => b.id === book.id) || book
-        );
-        setResult(merged);
+        setResult(Object.assign(result, filtered));
       }, 3000);
     };
   }
