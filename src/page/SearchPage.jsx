@@ -13,21 +13,22 @@ function SearchPage() {
     return () => {
       if (timeout) clearTimeout(timeout);
       timeout = setTimeout(async () => {
-        const result = await search(input.current.value, 5);
+        let result = await search(input.current.value);
         if (result.error) {
           setResult([]);
           return;
         }
-        let filtered = userBooks.filter((book) =>
-          result?.some((r) => r.id === book.id)
-        );
-        setResult(Object.assign(result, filtered));
+        result.map((book) => {
+          let b = userBooks.find((b) => b.id === book.id);
+          if (b) book.shelf = b.shelf;
+        });
+        setResult(result);
       }, 3000);
     };
   }
   function changeShelf(book, shelf) {
     update(book, shelf).then(() => {
-      getAll().then((books) => setUserBook(books));
+      getAll().then(setUserBook);
     });
   }
   useEffect(() => {
